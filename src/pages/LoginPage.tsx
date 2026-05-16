@@ -26,7 +26,7 @@ export default function LoginPage() {
             <Rocket size={28} color="#fff" />
           </div>
         </div>
-        <h1>AtomQuest</h1>
+        <h1>AlignIQ</h1>
         <p>Goal Setting & Tracking Portal — Select a user to begin</p>
 
         <div className="login-users">

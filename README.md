@@ -1,6 +1,6 @@
-# AtomQuest 🎯
+# AlignIQ 🎯
 
-AtomQuest is a comprehensive, web-based **Goal Setting & Tracking Portal** designed to streamline how organizations manage employee performance goals. From goal creation and manager approvals to quarterly check-ins and high-level analytics, AtomQuest provides a seamless, end-to-end workflow for the entire organization.
+AlignIQ is a comprehensive, web-based **Goal Setting & Tracking Portal** designed to streamline how organizations manage employee performance goals. From goal creation and manager approvals to quarterly check-ins and high-level analytics, AlignIQ provides a seamless, end-to-end workflow for the entire organization.
 
 ## 🚀 Live Demo Mode
 The application currently features a robust **in-memory data store** and a **demo-mode role switcher**, allowing you to seamlessly test the workflows from the perspective of an Employee, a Manager, or an Admin without needing a backend server!
@@ -44,8 +44,8 @@ To run this project locally:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/kshitij1908/atomquest.git
-   cd atomquest
+   git clone https://github.com/kshitij1908/aligniq.git
+   cd aligniq
    ```
 
 2. **Install dependencies**

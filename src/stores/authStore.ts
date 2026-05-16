@@ -39,7 +39,7 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'atomquest-auth',
+      name: 'aligniq-auth',
     }
   )
 );

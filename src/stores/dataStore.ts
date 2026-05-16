@@ -16,7 +16,7 @@ import { calculateProgressScore } from '../utils/calculations';
 const SEED_USERS: User[] = [
   {
     id: 'user-admin-1',
-    email: 'admin@atomquest.com',
+    email: 'admin@aligniq.com',
     firstName: 'Priya',
     lastName: 'Sharma',
     role: 'ADMIN',
@@ -26,7 +26,7 @@ const SEED_USERS: User[] = [
   },
   {
     id: 'user-mgr-1',
-    email: 'rahul.m@atomquest.com',
+    email: 'rahul.m@aligniq.com',
     firstName: 'Rahul',
     lastName: 'Mehta',
     role: 'MANAGER',
@@ -36,7 +36,7 @@ const SEED_USERS: User[] = [
   },
   {
     id: 'user-mgr-2',
-    email: 'anita.k@atomquest.com',
+    email: 'anita.k@aligniq.com',
     firstName: 'Anita',
     lastName: 'Kumar',
     role: 'MANAGER',
@@ -46,7 +46,7 @@ const SEED_USERS: User[] = [
   },
   {
     id: 'user-emp-1',
-    email: 'arjun.p@atomquest.com',
+    email: 'arjun.p@aligniq.com',
     firstName: 'Arjun',
     lastName: 'Patel',
     role: 'EMPLOYEE',
@@ -56,7 +56,7 @@ const SEED_USERS: User[] = [
   },
   {
     id: 'user-emp-2',
-    email: 'sneha.r@atomquest.com',
+    email: 'sneha.r@aligniq.com',
     firstName: 'Sneha',
     lastName: 'Reddy',
     role: 'EMPLOYEE',
@@ -66,7 +66,7 @@ const SEED_USERS: User[] = [
   },
   {
     id: 'user-emp-3',
-    email: 'vikram.s@atomquest.com',
+    email: 'vikram.s@aligniq.com',
     firstName: 'Vikram',
     lastName: 'Singh',
     role: 'EMPLOYEE',
@@ -76,7 +76,7 @@ const SEED_USERS: User[] = [
   },
   {
     id: 'user-emp-4',
-    email: 'meera.j@atomquest.com',
+    email: 'meera.j@aligniq.com',
     firstName: 'Meera',
     lastName: 'Joshi',
     role: 'EMPLOYEE',
@@ -693,7 +693,7 @@ export const useDataStore = create<DataState>()(
       },
     }),
     {
-      name: 'atomquest-data',
+      name: 'aligniq-data',
     }
   )
 );

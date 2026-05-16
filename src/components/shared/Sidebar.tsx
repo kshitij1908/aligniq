@@ -22,7 +22,7 @@ export default function Sidebar() {
     <aside className="sidebar">
       <div className="sidebar-brand">
         <div className="logo">AQ</div>
-        <h1>AtomQuest</h1>
+        <h1>AlignIQ</h1>
       </div>
 
       <nav className="sidebar-nav">
