@@ -1,73 +1,71 @@
-# React + TypeScript + Vite
+# AtomQuest 🎯
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+AtomQuest is a comprehensive, web-based **Goal Setting & Tracking Portal** designed to streamline how organizations manage employee performance goals. From goal creation and manager approvals to quarterly check-ins and high-level analytics, AtomQuest provides a seamless, end-to-end workflow for the entire organization.
 
-Currently, two official plugins are available:
+## 🚀 Live Demo Mode
+The application currently features a robust **in-memory data store** and a **demo-mode role switcher**, allowing you to seamlessly test the workflows from the perspective of an Employee, a Manager, or an Admin without needing a backend server!
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## ✨ Key Features
 
-## React Compiler
+### 👤 Role-Based Workflows
+- **Employee Persona**: Create structured goals, submit for manager approval, and log quarterly check-ins to track progress.
+- **Manager Persona**: Review team goals, approve/reject with actionable feedback, and oversee team check-ins with added comments.
+- **Admin Persona**: Gain high-level visibility across the organization, manage performance cycles, and track all system changes.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 🎯 Goal Management
+- **Structured Creation**: Goals require specific details including Title, Description, Thrust Area (e.g., Sales, HR, IT), and a Unit of Measurement (MIN, MAX, TIMELINE, ZERO).
+- **Weightage Validation**: Employees must assign a percentage weightage to each goal. The total weightage must equal exactly 100% before submission.
+- **Approval Engine**: Managers can review submitted goals in bulk or individually, and send back goals requiring revisions with comments.
 
-## Expanding the ESLint configuration
+### 📊 Quarterly Check-ins & Automatic Scoring
+- Submit achievement data against locked goals.
+- The system automatically calculates a **Progress Score (0-100%)** based on the goal's target value and its Unit of Measurement type.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 📈 Analytics & Reporting
+- **Achievement Report**: Detailed, filterable data table of employee achievements with CSV export functionality.
+- **Completion Dashboard**: Organization-wide metrics breaking down goal completion rates by department and specific managers.
+- **Visual Analytics**: Interactive charts built with Recharts, displaying status distributions and performance averages.
+- **Audit Trail**: A complete historical log of all goal updates and status transitions for compliance and tracking.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🛠️ Technology Stack
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- **Frontend Framework**: React 18
+- **Language**: TypeScript
+- **Build Tool**: Vite
+- **State Management**: Zustand (with in-memory persistence for demo purposes)
+- **Styling**: Vanilla CSS with a custom, premium dark-mode Design System (Glassmorphism + CSS Variables)
+- **Icons**: Lucide React
+- **Data Visualization**: Recharts
+- **Routing**: React Router DOM
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 💻 Getting Started
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+To run this project locally:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/kshitij1908/atomquest.git
+   cd atomquest
+   ```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Explore the app**
+   Open `http://localhost:5173` in your browser. Click on any user card on the login screen to start exploring the application!
+
+## 🛣️ Future Roadmap (Phase 2)
+While Phase 1 focused on creating a highly interactive and fully-featured frontend prototype, Phase 2 will involve:
+- Connecting to a **Node.js Express** backend.
+- Migrating data to a **PostgreSQL** database (via Supabase).
+- Implementing JWT-based authentication.
+
+---
+*Created by [Kshitij](https://github.com/kshitij1908).*
