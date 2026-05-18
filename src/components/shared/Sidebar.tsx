@@ -1,11 +1,12 @@
 import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useDataStore } from '../../stores/dataStore';
 import { getInitials } from '../../utils/formatters';
 import {
   LayoutDashboard, Target, CheckCircle, BarChart3, Shield,
-  LogOut, Bell, ClipboardCheck, Users, Settings, FileText
+  LogOut, Bell, ClipboardCheck, Users, Settings, FileText,
+  AlertTriangle, TrendingUp, GitMerge,
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -15,7 +16,6 @@ export default function Sidebar() {
   const unread = notifications.filter(n => !n.read).length;
 
   if (!currentUser) return null;
-
   const role = currentUser.role;
 
   return (
@@ -29,6 +29,13 @@ export default function Sidebar() {
         <div className="sidebar-section">Main</div>
         <NavLink to="/dashboard" className={({isActive}) => isActive ? 'active' : ''}>
           <LayoutDashboard className="nav-icon" /> Dashboard
+        </NavLink>
+        <NavLink to="/notifications" className={({isActive}) => isActive ? 'active' : ''}>
+          <Bell className="nav-icon" /> Notifications
+          {unread > 0 && (
+            <span style={{ marginLeft:'auto', background:'#6366f1', color:'#fff',
+              borderRadius:10, padding:'1px 7px', fontSize:11 }}>{unread}</span>
+          )}
         </NavLink>
 
         {(role === 'EMPLOYEE' || role === 'MANAGER') && (
@@ -66,7 +73,7 @@ export default function Sidebar() {
           <BarChart3 className="nav-icon" /> Completion
         </NavLink>
         <NavLink to="/reports/analytics" className={({isActive}) => isActive ? 'active' : ''}>
-          <BarChart3 className="nav-icon" /> Analytics
+          <TrendingUp className="nav-icon" /> Analytics
         </NavLink>
         <NavLink to="/reports/audit" className={({isActive}) => isActive ? 'active' : ''}>
           <Shield className="nav-icon" /> Audit Trail
@@ -81,13 +88,20 @@ export default function Sidebar() {
             <NavLink to="/admin/users" className={({isActive}) => isActive ? 'active' : ''}>
               <Users className="nav-icon" /> Users
             </NavLink>
+            <NavLink to="/admin/azure-ad" className={({isActive}) => isActive ? 'active' : ''}>
+              <GitMerge className="nav-icon" /> Azure AD Sync
+            </NavLink>
+            <NavLink to="/admin/escalations" className={({isActive}) => isActive ? 'active' : ''}>
+              <AlertTriangle className="nav-icon" /> Escalations
+            </NavLink>
           </>
         )}
       </nav>
 
       <div className="sidebar-footer">
-        <button className="sidebar-nav" onClick={logout} style={{padding:0}}>
-          <span style={{display:'flex',alignItems:'center',gap:12,padding:'10px 16px',borderRadius:8,color:'var(--text-secondary)',fontSize:14,fontWeight:500,width:'100%'}}>
+        <button className="sidebar-nav" onClick={logout} style={{ padding:0 }}>
+          <span style={{ display:'flex', alignItems:'center', gap:12, padding:'10px 16px',
+            borderRadius:8, color:'var(--text-secondary)', fontSize:14, fontWeight:500, width:'100%' }}>
             <LogOut size={20} /> Sign Out
           </span>
         </button>

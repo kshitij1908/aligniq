@@ -7,6 +7,8 @@ import {
   User, Goal, CheckIn, CheckInComment, AuditLog, Cycle,
   Notification, SharedGoal, GoalStatus, Quarter, CyclePhase,
   GoalFormData, CheckInFormData, UoMType,
+  EscalationRule, EscalationEvent, TeamsCardPayload,
+  EscalationRuleFormData, NotificationChannel
 } from '../types';
 import { generateId } from '../utils/formatters';
 import { calculateProgressScore } from '../utils/calculations';
@@ -364,11 +366,14 @@ interface DataState {
   auditLogs: AuditLog[];
   cycles: Cycle[];
   notifications: Notification[];
+  escalationRules: EscalationRule[];
+  escalationEvents: EscalationEvent[];
 
   // User ops
   getUser: (id: string) => User | undefined;
   getUsersByManager: (managerId: string) => User[];
   getAllEmployees: () => User[];
+  syncAzureADProfiles: (adGroups: Record<string, string[]>, jobTitles: Record<string, string>) => void;
 
   // Goal ops
   getGoalsByEmployee: (employeeId: string) => Goal[];
@@ -403,7 +408,15 @@ interface DataState {
   // Notification ops
   getNotifications: (userId: string) => Notification[];
   markNotificationRead: (id: string) => void;
-  addNotification: (userId: string, title: string, message: string, type: Notification['type'], link?: string) => void;
+  addNotification: (userId: string, title: string, message: string, type: Notification['type'], link?: string, channel?: NotificationChannel, teamsCardPayload?: TeamsCardPayload, emailSubject?: string, emailBody?: string, deepLink?: string) => void;
+  
+  // Escalation ops
+  getEscalationRules: () => EscalationRule[];
+  createEscalationRule: (data: EscalationRuleFormData, createdBy: string) => EscalationRule;
+  updateEscalationRule: (id: string, data: Partial<EscalationRuleFormData>) => EscalationRule;
+  deleteEscalationRule: (id: string) => void;
+  runEscalationEngine: (adminId: string) => void;
+  resolveEscalation: (id: string, resolvedBy: string, note: string) => void;
 
   // Reset
   resetData: () => void;
@@ -420,11 +433,31 @@ export const useDataStore = create<DataState>()(
       auditLogs: SEED_AUDIT_LOGS,
       cycles: SEED_CYCLES,
       notifications: [],
+      escalationRules: [],
+      escalationEvents: [],
 
       // --- User Operations ---
       getUser: (id) => get().users.find(u => u.id === id),
       getUsersByManager: (managerId) => get().users.filter(u => u.managerId === managerId),
       getAllEmployees: () => get().users.filter(u => u.role === 'EMPLOYEE'),
+      syncAzureADProfiles: (adGroups, jobTitles) => {
+        set(s => ({
+          users: s.users.map(u => {
+            const groups = adGroups[u.id] || [];
+            let mappedRole = u.role;
+            if (groups.includes('AlignIQ-Admins')) mappedRole = 'ADMIN';
+            else if (groups.includes('AlignIQ-Managers')) mappedRole = 'MANAGER';
+            else if (groups.includes('AlignIQ-Employees')) mappedRole = 'EMPLOYEE';
+            return {
+              ...u,
+              azureAdId: `ad-${u.id}`,
+              jobTitle: jobTitles[u.id],
+              azureGroups: groups,
+              role: mappedRole
+            };
+          })
+        }));
+      },
 
       // --- Goal Operations ---
       getGoalsByEmployee: (employeeId) => get().goals.filter(g => g.employeeId === employeeId),
@@ -664,18 +697,81 @@ export const useDataStore = create<DataState>()(
         }));
       },
 
-      addNotification: (userId, title, message, type, link) => {
+      addNotification: (userId, title, message, type, link, channel = 'in-app', teamsCardPayload, emailSubject, emailBody, deepLink) => {
         const notif: Notification = {
           id: generateId(),
           userId,
           title,
           message,
           type,
+          channel,
           read: false,
           link,
+          teamsCardPayload,
+          emailSubject,
+          emailBody,
+          deepLink,
           createdAt: new Date().toISOString(),
         };
         set(s => ({ notifications: [...s.notifications, notif] }));
+      },
+
+      // --- Escalation Ops ---
+      getEscalationRules: () => get().escalationRules,
+      createEscalationRule: (data, createdBy) => {
+        const rule: EscalationRule = {
+          ...data,
+          id: generateId(),
+          createdBy,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        set(s => ({ escalationRules: [...s.escalationRules, rule] }));
+        return rule;
+      },
+      updateEscalationRule: (id, data) => {
+        set(s => ({
+          escalationRules: s.escalationRules.map(r => r.id === id ? { ...r, ...data, updatedAt: new Date().toISOString() } : r)
+        }));
+        return get().escalationRules.find(r => r.id === id)!;
+      },
+      deleteEscalationRule: (id) => {
+        set(s => ({ escalationRules: s.escalationRules.filter(r => r.id !== id) }));
+      },
+      runEscalationEngine: (adminId) => {
+        const rules = get().escalationRules.filter(r => r.isActive);
+        const goals = get().goals;
+        const newEvents: EscalationEvent[] = [];
+        
+        rules.forEach(rule => {
+          if (rule.triggerType === 'goal-not-submitted') {
+            const drafts = goals.filter(g => g.status === 'DRAFT');
+            drafts.forEach(g => {
+              const days = Math.floor((new Date().getTime() - new Date(g.createdAt).getTime()) / (1000 * 3600 * 24));
+              if (days >= rule.thresholdDays) {
+                newEvents.push({
+                  id: generateId(),
+                  ruleId: rule.id,
+                  ruleName: rule.name,
+                  userId: g.employeeId,
+                  triggerType: rule.triggerType,
+                  daysPastDue: days,
+                  status: days >= rule.thresholdDays + rule.escalationDays ? 'escalated' : 'pending',
+                  notifiedAt: new Date().toISOString(),
+                  createdAt: new Date().toISOString()
+                });
+              }
+            });
+          }
+        });
+        set(s => ({ escalationEvents: [...s.escalationEvents, ...newEvents] }));
+      },
+      resolveEscalation: (id, resolvedBy, note) => {
+        set(s => ({
+          escalationEvents: s.escalationEvents.map(e => e.id === id ? {
+            ...e, status: 'resolved', resolvedAt: new Date().toISOString(), resolvedBy, resolutionNote: note
+          } : e)
+        }));
       },
 
       // Reset
@@ -689,6 +785,8 @@ export const useDataStore = create<DataState>()(
           auditLogs: SEED_AUDIT_LOGS,
           cycles: SEED_CYCLES,
           notifications: [],
+          escalationRules: [],
+          escalationEvents: [],
         });
       },
     }),

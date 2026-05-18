@@ -18,7 +18,26 @@ export type Quarter = 'Q1' | 'Q2' | 'Q3' | 'Q4';
 
 export type CyclePhase = 'PHASE1' | 'Q1' | 'Q2' | 'Q3' | 'Q4';
 
+export type NotificationChannel = 'in-app' | 'email' | 'teams';
+
+export type EscalationTrigger =
+  | 'goal-not-submitted'
+  | 'goal-not-approved'
+  | 'checkin-not-completed';
+
+export type EscalationStatus = 'pending' | 'escalated' | 'resolved';
+
 // --- Models ---
+
+export interface AzureAdUser {
+  azureAdId: string;
+  jobTitle: string;
+  officeLocation: string;
+  azureGroups: string[]; // e.g. ['AlignIQ-Managers', 'IT-Department']
+  managerAzureId: string | null;
+  accountEnabled: boolean;
+  lastSyncedAt: string;
+}
 
 export interface User {
   id: string;
@@ -30,6 +49,11 @@ export interface User {
   managerId: string | null;
   avatar?: string;
   createdAt: string;
+  // Azure AD fields (populated on SSO sync)
+  azureAdId?: string;
+  jobTitle?: string;
+  officeLocation?: string;
+  azureGroups?: string[];
 }
 
 export interface Goal {
@@ -109,9 +133,83 @@ export interface Notification {
   title: string;
   message: string;
   type: 'info' | 'success' | 'warning' | 'error';
+  channel: NotificationChannel;
   read: boolean;
   link?: string;
+  deepLink?: string;
+  // Teams-specific
+  teamsCardPayload?: TeamsCardPayload;
+  // Email-specific
+  emailSubject?: string;
+  emailBody?: string;
   createdAt: string;
+}
+
+// --- Teams Adaptive Card ---
+
+export interface TeamsCardAction {
+  type: 'openUrl' | 'Action.Submit';
+  title: string;
+  url?: string;
+}
+
+export interface TeamsCardPayload {
+  title: string;
+  subtitle?: string;
+  body: string;
+  facts?: { label: string; value: string }[];
+  actions?: TeamsCardAction[];
+  accentColor?: string;
+}
+
+// --- Escalation ---
+
+export interface EscalationRule {
+  id: string;
+  name: string;
+  triggerType: EscalationTrigger;
+  thresholdDays: number;       // N days after the trigger condition starts
+  escalationDays: number;      // additional N days before escalating to skip-level/HR
+  targetRoles: string[];       // ['employee', 'manager', 'hr']
+  isActive: boolean;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EscalationEvent {
+  id: string;
+  ruleId: string;
+  ruleName: string;
+  userId: string;              // The person who needs to act
+  managerId?: string;          // Manager notified
+  skipLevelId?: string;        // Skip-level/HR notified
+  triggerType: EscalationTrigger;
+  daysPastDue: number;
+  status: EscalationStatus;
+  notifiedAt: string;
+  escalatedAt?: string;
+  resolvedAt?: string;
+  resolvedBy?: string;
+  resolutionNote?: string;
+  relatedGoalId?: string;
+  createdAt: string;
+}
+
+// --- Analytics / QoQ ---
+
+export interface QoQDataPoint {
+  quarter: Quarter;
+  individual: number;   // avg score for selected employee
+  team: number;         // avg score for their team
+  organization: number; // org-wide avg
+}
+
+export interface HeatmapCell {
+  department: ThrustArea;
+  quarter: Quarter;
+  completionRate: number; // 0-100
+  goalCount: number;
 }
 
 // --- Form / Input Types ---
@@ -130,6 +228,15 @@ export interface CheckInFormData {
   quarter: Quarter;
   achievement: number;
   status: CheckInStatus;
+}
+
+export interface EscalationRuleFormData {
+  name: string;
+  triggerType: EscalationTrigger;
+  thresholdDays: number;
+  escalationDays: number;
+  targetRoles: string[];
+  isActive: boolean;
 }
 
 // --- Dashboard Types ---
@@ -188,4 +295,10 @@ export const STATUS_COLORS: Record<GoalStatus, string> = {
   APPROVED: 'var(--status-approved)',
   LOCKED: 'var(--status-locked)',
   REJECTED: 'var(--status-rejected)',
+};
+
+export const ESCALATION_TRIGGER_LABELS: Record<EscalationTrigger, string> = {
+  'goal-not-submitted': 'Employee has not submitted goals within N days of cycle open',
+  'goal-not-approved': 'Manager has not approved goals within N days of submission',
+  'checkin-not-completed': 'Quarterly check-in not completed within the active window',
 };

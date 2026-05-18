@@ -14,6 +14,9 @@ import CompletionDashboard from './components/Reports/CompletionDashboard';
 import AuditTrail from './components/Reports/AuditTrail';
 import Analytics from './components/Reports/Analytics';
 import AdminPage from './pages/AdminPage';
+import NotificationCenter from './components/Notifications/NotificationCenter';
+import AzureADSyncPanel from './components/AzureAD/AzureADSyncPanel';
+import EscalationModule from './components/Escalation/EscalationModule';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
@@ -34,12 +37,15 @@ export default function App() {
           <Route path="approval" element={<GoalApproval />} />
           <Route path="check-ins" element={<CheckInForm />} />
           <Route path="team-checkins" element={<ManagerCheckIn />} />
+          <Route path="notifications" element={<NotificationCenter />} />
           <Route path="reports/achievement" element={<AchievementReport />} />
           <Route path="reports/completion" element={<CompletionDashboard />} />
           <Route path="reports/analytics" element={<Analytics />} />
           <Route path="reports/audit" element={<AuditTrail />} />
           <Route path="admin/cycles" element={<AdminPage />} />
           <Route path="admin/users" element={<AdminPage />} />
+          <Route path="admin/azure-ad" element={<AzureADSyncPanel />} />
+          <Route path="admin/escalations" element={<EscalationModule />} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
